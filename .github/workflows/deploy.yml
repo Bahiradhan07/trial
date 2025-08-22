@@ -1,0 +1,37 @@
+name: Deploy C Program
+
+on:
+  push:
+    branches:
+      - main   # run only when code is pushed to main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Compile C program
+      run: gcc main.c -o myapp
+
+    - name: Deploy to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "myapp"
+        target: "/home/${{ secrets.USER }}/deployed-app/"
+
+    - name: Run app on server
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd /home/${{ secrets.USER }}/deployed-app
+          nohup ./myapp > output.log 2>&1 &
+
