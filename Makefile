@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-02
+CFLAGS=-o2
 TARGET=hello
 
 all:
